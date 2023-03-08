@@ -5,9 +5,12 @@ using UnityEngine.SocialPlatforms.Impl;
 
 public class UncleBill : MonoBehaviour
 {
-    public float UncleBill_Speed = 5.0f;
-    public float UncleBill_Jump = 5.0f;
-    private bool isJumping = false;
+    [SerializeField]
+    private float UncleBill_Speed = 5.0f;
+    [SerializeField]
+    private float UncleBill_Jump = 6.0f;
+    private bool canJump = true;
+    private bool canCollect = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -18,32 +21,56 @@ public class UncleBill : MonoBehaviour
     void Update()
     {
         Movement();
+        Collect();
     }
 
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        StartCoroutine(CollectCheckCoroutine(collision));
+        JumpCheck(collision);
+    }
     public void Movement()
     {
         float HorizontalMovementInput = Input.GetAxisRaw("Horizontal");
         Vector3 movementDirection = Vector3.right * HorizontalMovementInput;
         transform.position += movementDirection * UncleBill_Speed * Time.deltaTime;
-        if (Input.GetKeyDown(KeyCode.Space) && !isJumping)
+        if (Input.GetKeyDown(KeyCode.Space) && canJump)
         {
-            isJumping = true;
-            GetComponent<Rigidbody2D>().velocity = new Vector2(GetComponent<Rigidbody2D>().velocity.x, UncleBill_Jump);
+            GetComponent<Rigidbody2D>().AddForce(Vector3.up * UncleBill_Jump, ForceMode2D.Impulse);
+            canJump = false;
         }
     }
-    private void OnCollisionEnter2D(Collision2D collision)
+    public void Collect()
+    {
+        if (Input.GetKeyDown(KeyCode.F) && canCollect)
+        {
+            Debug.Log("Collect!");
+            canCollect = false;
+        }
+    }
+    public void JumpCheck(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Ground"))
         {
-            DoubleJumpCheck(collision);
+            canJump = true;
         }
-    }
-    private void DoubleJumpCheck(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Ground"))
+        else if (collision.gameObject.CompareTag("Item"))
         {
-            isJumping = false;
+            canJump = true;
         }
     }
-
+    public IEnumerator CollectCheckCoroutine(Collision2D collision)
+    {
+        while (true)
+        {
+            if (collision.gameObject.CompareTag("Item"))
+            {
+                Debug.Log("Can Collect!");
+                canCollect = true;
+                yield return new WaitForSeconds(1.0f);
+            }
+            Debug.Log("nonono");
+            canCollect = false;
+        }
+    }
 }

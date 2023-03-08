@@ -5,22 +5,19 @@ using UnityEngine;
 
 public class MainCamera : MonoBehaviour
 {
-    public Transform UncleBillTransform;
-    public Vector3 offset;
-    public float fixedZDistance = -10f;
-    public float fixedYDistance = 2f;
-    public float fixedXDistance = 0f;
-    public float cameraHorizontalSpeed;
-    public float cameraVerticalSpeed;
-    UncleBill uncleBillScript;
+    private Transform UncleBillTransform;
+    [SerializeField]
+    private float CameraSpeed = 20;
+    [SerializeField]
+    private float fixedZDistance = -10f;
+    [SerializeField]
+    private float fixedYDistance = 2f;
+    [SerializeField]
+    private float fixedXDistance = 0f;
     // Start is called before the first frame update
     void Start()
     {
         UncleBillTransform = GameObject.Find("UncleBill").transform;
-        UncleBillTransform = GameObject.Find("UncleBill").transform;
-        uncleBillScript = UncleBillTransform.GetComponent<UncleBill>();
-        cameraHorizontalSpeed = uncleBillScript.UncleBill_Speed;
-        cameraVerticalSpeed = uncleBillScript.UncleBill_Jump;
     }
 
     // Update is called once per frame
@@ -29,7 +26,7 @@ public class MainCamera : MonoBehaviour
         if (UncleBillTransform != null)
         {
             Vector3 desiredPosition = UncleBillTransform.position + new Vector3(fixedXDistance, fixedYDistance, fixedZDistance);
-            Vector3 smoothedHorizontalPosition = Vector3.MoveTowards(transform.position, desiredPosition, cameraHorizontalSpeed * Time.deltaTime);
+            Vector3 smoothedHorizontalPosition = Vector3.MoveTowards(transform.position, desiredPosition, CameraSpeed * Time.deltaTime);
             transform.position = smoothedHorizontalPosition;
         }
     }
